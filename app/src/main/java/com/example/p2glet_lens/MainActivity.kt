@@ -1,6 +1,7 @@
 package com.example.p2glet_lens
 
 import android.Manifest
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Size
@@ -11,6 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.p2glet_lens.databinding.ActivityMainBinding
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -67,6 +72,13 @@ class MainActivity : AppCompatActivity() {
             .setTargetResolution(Size(width,height))
             .setTargetRotation(rotation)
             .build()
+            .also {
+                it.setAnalyzer(cameraExecutor, LuminosityAnalzer(binding.graphicOverlay){
+                    runOnUiThread{
+                        binding.viewFinderImageview.setImageBitmap(it)
+                    }
+                })
+            }
 
         cameraProvider?.unbindAll()
 
@@ -77,4 +89,52 @@ class MainActivity : AppCompatActivity() {
             println(e)
         }
     }
+
+    inner class LuminosityAnalzer(var graphicOverlay: GraphicOverlay?, var listener : (bitmap : Bitmap) -> Unit?) : ImageAnalysis.Analyzer {
+        var options = FirebaseVisionFaceDetectorOptions.Builder()
+            .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
+            .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+            .build()
+
+        override fun analyze(image: ImageProxy) {
+            var originBitmap = image.image?.toBitmap(100)
+            var bitmapToFloating = originBitmap?.rotateWithReverse(270f)
+
+
+            var metadata = FirebaseVisionImageMetadata.Builder()
+                .setWidth(image.width)
+                .setHeight(image.height)
+                .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
+                .setRotation(FirebaseVisionImageMetadata.ROTATION_270)
+                .build()
+            var buffer = image.planes[0].buffer
+            var bufferImage = FirebaseVisionImage.fromByteBuffer(buffer, metadata)
+            FirebaseVision.getInstance()
+                .getVisionFaceDetector(options)
+                .detectInImage(bufferImage)
+                .addOnSuccessListener { faces ->
+                    graphicOverlay?.clear()
+                    for (face in faces) {
+                        var faceGraphic = FaceGraphic(graphicOverlay, face, null)
+                        graphicOverlay.add(faceGraphic)
+                    }
+                    graphicOverlay.postInvalidate()
+                    image.close()
+                    bitmapToFloating?.let { listener(it) }
+                }.addOnFailureListener{
+                    image.close()
+                    bitmapToFloating?.let { listener(it) }
+                }
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
