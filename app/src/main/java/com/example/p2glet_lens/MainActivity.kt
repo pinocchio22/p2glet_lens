@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         cameraProvider?.unbindAll()
 
         try {
-            camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis)
+            camera = cameraProvider?.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis)
             preview?.setSurfaceProvider(binding.viewFinder.createSurfaceProvider())
         } catch (e : Exception) {
             println(e)
