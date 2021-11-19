@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         cameraExecutor = Executors.newSingleThreadExecutor()
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
+        setUpCamera()
     }
 
     fun setUpCamera() {

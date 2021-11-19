@@ -9,12 +9,13 @@
 
         <androidx.camera.view.PreviewView
             android:id="@+id/view_finder"
-            android:layout_width="20dp"
+            android:layout_width="240dp"
             android:layout_height="320dp"/>
         <ImageView
             android:layout_width="240dp"
             android:layout_height="320dp"
             android:id="@+id/view_finder_imageview"/>
+
         <com.example.p2glet_lens.GraphicOverlay
             android:layout_width="240dp"
             android:layout_height="320dp"
