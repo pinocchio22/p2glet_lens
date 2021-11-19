@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
             .setTargetRotation(rotation)
             .build()
             .also {
-                it.setAnalyzer(cameraExecutor, LuminosityAnalzer(binding.graphicOverlay){
+                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer(binding.graphicOverlay){
                     runOnUiThread{
                         binding.viewFinderImageview.setImageBitmap(it)
                     }
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class LuminosityAnalzer(var graphicOverlay: GraphicOverlay?, var listener : (bitmap : Bitmap) -> Unit?) : ImageAnalysis.Analyzer {
+    inner class LuminosityAnalyzer(var graphicOverlay: GraphicOverlay?, var listener : (bitmap : Bitmap) -> Unit?) : ImageAnalysis.Analyzer {
         var options = FirebaseVisionFaceDetectorOptions.Builder()
             .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
             .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
@@ -116,9 +116,9 @@ class MainActivity : AppCompatActivity() {
                     graphicOverlay?.clear()
                     for (face in faces) {
                         var faceGraphic = FaceGraphic(graphicOverlay, face, null)
-                        graphicOverlay.add(faceGraphic)
+                        graphicOverlay?.add(faceGraphic)
                     }
-                    graphicOverlay.postInvalidate()
+                    graphicOverlay?.postInvalidate()
                     image.close()
                     bitmapToFloating?.let { listener(it) }
                 }.addOnFailureListener{

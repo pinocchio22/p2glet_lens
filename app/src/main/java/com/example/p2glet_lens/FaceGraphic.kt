@@ -13,8 +13,9 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
  * @created 2021-11-19
  * @desc
  */
-class FaceGraphic (overlay : GraphicOverlay, var firebaseVisionFace : FirebaseVisionFace?, var lensBitmap : Bitmap?) : GraphicOverlay.Graphic(overlay) {
-
+class FaceGraphic (overlay: GraphicOverlay?, var firebaseVisionFace : FirebaseVisionFace?, var lensBitmap : Bitmap?) : GraphicOverlay.Graphic(
+    overlay!!
+) {
     val idPaint = Paint().apply {
         color = Color.WHITE
     }
@@ -24,7 +25,7 @@ class FaceGraphic (overlay : GraphicOverlay, var firebaseVisionFace : FirebaseVi
         drawBitmapOverLandmarkPosition(canvas, face, null, FirebaseVisionFaceLandmark.RIGHT_EYE)
         drawBitmapOverLandmarkPosition(canvas, face, null, FirebaseVisionFaceLandmark.LEFT_EYE)
     }
-    fun drawBitmapOverLandmarkPosition(canvas : Canvas?, face : FirebaseVisionFace, overlayBitmap: Bitmap, landmarkID : Int) {
+    fun drawBitmapOverLandmarkPosition(canvas : Canvas?, face : FirebaseVisionFace, overlayBitmap: Bitmap?, landmarkID : Int) {
         val landmark = face.getLandmark(landmarkID)
         val point = landmark?.position
         if (point != null) {
